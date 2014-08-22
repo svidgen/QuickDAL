@@ -261,5 +261,13 @@ namespace QuickDAL
             }
         }
 
+        public Boolean Save()
+        {
+            using (QueryBuilder qb = (new T()).GetQueryBuilder())
+            {
+                return qb.Save(this) == 1;
+            }
+        }
+
     }
 }

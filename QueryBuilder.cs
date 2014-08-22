@@ -224,23 +224,26 @@ namespace QuickDAL
                     {
                         Dictionary<String, String> c = o.ToDictionary();
 
-                        if (!String.IsNullOrEmpty(od.PrimaryKey)
-                            && c.ContainsKey(od.PrimaryKey) && c[od.PrimaryKey] != null)
+                        if (c.Count > 0)
                         {
-                            this_clause.Add(od.Name + "." + od.PrimaryKey, c[od.PrimaryKey]);
-                        }
-                        else
-                        {
-                            foreach (KeyValuePair<String, String> p in c)
+                            if (!String.IsNullOrEmpty(od.PrimaryKey)
+                                && c.ContainsKey(od.PrimaryKey) && c[od.PrimaryKey] != null)
                             {
-                                if (p.Value != null)
+                                this_clause.Add(od.Name + "." + od.PrimaryKey, c[od.PrimaryKey]);
+                            }
+                            else
+                            {
+                                foreach (KeyValuePair<String, String> p in c)
                                 {
-                                    this_clause.Add(od.Name + "." + p.Key, p.Value);
+                                    if (p.Value != null)
+                                    {
+                                        this_clause.Add(od.Name + "." + p.Key, p.Value);
+                                    }
                                 }
                             }
-                        }
 
-                        where[od.Name].Add(this_clause);
+                            where[od.Name].Add(this_clause);
+                        }
                     }
                     else
                     {
@@ -348,7 +351,7 @@ namespace QuickDAL
         /// <typeparam name="T"></typeparam>
         /// <param name="o">The object to save</param>
         /// <param name="fullUpdate">Whether to set nulls, 0's, and empty strings values in the update, which are otherwise ignored.</param>
-        /// <returns></returns>
+        /// <returns>number of rows affected</returns>
         public Int32 Save(DataObject o, Boolean fullUpdate = false)
         {
             DataDefinition d = o.GetDefinition();
@@ -364,6 +367,12 @@ namespace QuickDAL
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="o"></param>
+        /// <param name="fullUpdate"></param>
+        /// <returns>number of rows affected</returns>
         public Int32 Insert(DataObject o, Boolean fullUpdate = false)
         {
             var dv = o.ToDictionary(fullUpdate);
@@ -430,7 +439,12 @@ namespace QuickDAL
             }
         } // Insert()
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="o"></param>
+        /// <param name="fullUpdate"></param>
+        /// <returns>number of rows affected</returns>
         public Int32 Update(DataObject o, Boolean fullUpdate = false)
         {
             DataDefinition d = o.GetDefinition();
