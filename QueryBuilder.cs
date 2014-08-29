@@ -260,22 +260,22 @@ namespace QuickDAL
 
                 if (order.Contains("."))
                 {
-                    fullOrderField = order;
+                    fullOrderField = "[" + order.Replace(".", "].[") + "]";
                 }
                 else
                 {
-                    fullOrderField = d.Name + "." + order;
+                    fullOrderField = "[" + d.Name + "].[" + order + "]";
                 }
 
             }
             else if (!String.IsNullOrEmpty(d.DefaultOrder))
             {
-                fullOrderField = d.Name + "." + d.DefaultOrder;
+                fullOrderField = "[" + d.Name + "].[" + d.DefaultOrder + "]";
                 effectiveOrderColumn = d.DefaultOrder;
             }
             else if (!String.IsNullOrEmpty(d.PrimaryKey))
             {
-                fullOrderField = d.Name + "." + d.PrimaryKey;
+                fullOrderField = "[" + d.Name + "].[" + d.PrimaryKey + "]";
                 effectiveOrderColumn = d.PrimaryKey;
             }
 
@@ -292,7 +292,7 @@ namespace QuickDAL
 
             using (IDbCommand query = CreateCommand())
             {
-                query.CommandText = "select " + distinctString + " top " + limit + " " + fullOrderField.Replace(" DESC","") + " " + topOrderByFieldAlias + d.Name + ".* from " + String.Join("\r\n", tables.ToArray());
+                query.CommandText = "select " + distinctString + " top " + limit + " " + fullOrderField.Replace(" DESC","") + " " + topOrderByFieldAlias + "[" + d.Name + "].* from " + String.Join("\r\n", tables.ToArray());
                 AppendWhere(query, where, fuzzy);
 
                 if (start != null && !String.IsNullOrEmpty(effectiveOrderColumn))
@@ -390,7 +390,7 @@ namespace QuickDAL
             }
             using (IDbCommand query = CreateCommand())
             {
-                query.CommandText = "insert into " + o.GetDefinition().DataEntity;
+                query.CommandText = "insert into [" + o.GetDefinition().DataEntity + "]";
                 query.CommandText += " (" + String.Join(",", dv.Keys.ToArray()) + ")";
                 query.CommandText += " values (@" + String.Join(",@", dv.Keys.ToArray()) + ")";
 

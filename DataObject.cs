@@ -261,11 +261,16 @@ namespace QuickDAL
             }
         }
 
-        public Boolean Save()
+        /// <summary>
+        /// Updates or Inserts the record accordingly.
+        /// </summary>
+        /// <param name="fullUpdate">Whether to include "empty" values like 0, NULL, and "" in the save.</param>
+        /// <returns></returns>
+        public Boolean Save(Boolean fullUpdate = false)
         {
             using (QueryBuilder qb = (new T()).GetQueryBuilder())
             {
-                return qb.Save(this) == 1;
+                return qb.Save(this, fullUpdate) == 1;
             }
         }
 
