@@ -450,11 +450,15 @@ namespace QuickDAL
             DataDefinition d = o.GetDefinition();
             var dv = o.ToDictionary(fullUpdate);
 
+            var PK_key = d.PrimaryKey;
+            var PK_value = dv[d.PrimaryKey];
+            dv.Remove(PK_key);
+
             using (IDbCommand query = CreateCommand())
             {
                 query.CommandText = "update " + d.DataEntity;
                 AppendSet(query, dv);
-                AppendWhere(query, d.PrimaryKey, "=", dv[d.PrimaryKey]);
+                AppendWhere(query, PK_key, "=", PK_value);
 
                 return ExecuteNonQuery(query);
             }
