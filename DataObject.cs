@@ -227,12 +227,32 @@ namespace QuickDAL
 
         public static T Get(Guid id)
         {
+
+            // avoid unwanted table scans
+            if (Guid.Empty.Equals(id))
+            {
+                return null;
+            }
+
             T t = new T();
             DataDefinition d = t.GetDefinition();
             if (!String.IsNullOrEmpty(d.PrimaryKey) && d.Maps[d.PrimaryKey].PropertyType == typeof(Guid))
             {
                 d.Maps[d.PrimaryKey].Set(id);
-                return Get(t).FirstOrDefault();
+                var list = Get(t);
+
+                if (list.Count == 0)
+                {
+                    return null;
+                }
+                else if (list.Count != 1)
+                {
+                    throw new Exception("Query against PK (" + d.DataEntity + "." + d.PrimaryKey + ") returned more than one row.");
+                }
+                else
+                {
+                    return list[0];
+                }
             }
 
             return null;
