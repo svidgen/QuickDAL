@@ -46,6 +46,7 @@
     <Compile Include="DataRelationship.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryBuilder.cs" />
+    <Compile Include="QuickAPI.cs" />
     <Compile Include="Reference.cs" />
     <Compile Include="TreeNode.cs" />
   </ItemGroup>

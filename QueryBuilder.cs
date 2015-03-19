@@ -313,6 +313,10 @@ namespace QuickDAL
                     {
                         T row = new T();
                         row.Populate(QueryBuilder.GetDictionary(r));
+                        if (!row.AuthorizeGet())
+                        {
+                            throw new Exception("Not authorized to Get.");
+                        }
                         rv.Add(row);
                     }
                 }
@@ -354,6 +358,11 @@ namespace QuickDAL
         /// <returns>number of rows affected</returns>
         public Int32 Save(DataObject o, Boolean fullUpdate = false)
         {
+            if (!o.Validate())
+            {
+                throw new Exception("Invalid object state for saving.");
+            }
+
             DataDefinition d = o.GetDefinition();
             Dictionary<String, String> v = o.ToDictionary();
             if (d.PrimaryKey != null && v.ContainsKey(d.PrimaryKey) && v[d.PrimaryKey] != null)
@@ -375,6 +384,11 @@ namespace QuickDAL
         /// <returns>number of rows affected</returns>
         public Int32 Insert(DataObject o, Boolean fullUpdate = false)
         {
+            if (!o.AuthorizeInsert())
+            {
+                throw new Exception("Not authorized for Insert.");
+            }
+
             var dv = o.ToDictionary(fullUpdate);
             DataDefinition d = o.GetDefinition();
             Boolean GuidPK = true;
@@ -447,6 +461,11 @@ namespace QuickDAL
         /// <returns>number of rows affected</returns>
         public Int32 Update(DataObject o, Boolean fullUpdate = false)
         {
+            if (!o.AuthorizeUpdate())
+            {
+                throw new Exception("Not authorized for Update.");
+            }
+
             DataDefinition d = o.GetDefinition();
             var dv = o.ToDictionary(fullUpdate);
 
@@ -473,6 +492,11 @@ namespace QuickDAL
         /// <returns></returns>
         public Int32 Delete(DataObject o)
         {
+            if (!o.AuthorizeDelete())
+            {
+                throw new Exception("Not authorized for Delete.");
+            }
+
             var dv = o.ToDictionary();
 
             if (dv.Count > 0)
@@ -488,18 +512,6 @@ namespace QuickDAL
             {
                 return 0;
             }
-        }
-
-        /// <summary>
-        /// Deletes any DataObject that matches the data in the supplied object
-        /// (the same objects that would normally be returned by Find()).
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="o"></param>
-        /// <returns></returns>
-        public Boolean DeleteMultiple<T>(DataObject o) where T : DataObject
-        {
-            throw new Exception("QueryBuilder.DeleteMultiple<T>(DataObject) is not yet implemented.");
         }
 
 

@@ -24,6 +24,30 @@ namespace QuickDAL
             }
         }
 
+
+        /// <summary>
+        /// Determines whether the object permits the Domain/context to Get and operate on the object.
+        /// </summary>
+        /// <returns></returns>
+        public virtual Boolean AuthorizeGet() { return true; }
+
+        /// <summary>
+        /// Determines whether the attached client is permitted to view the object. This is enforced in the CRUD API, and SHOULD be checked any time an object passes out of the Domain.
+        /// </summary>
+        /// <returns></returns>
+        public virtual Boolean AuthorizeView() { return true; }
+
+        public virtual Boolean AuthorizeInsert() { return true; }
+        public virtual Boolean AuthorizeUpdate() { return true; }
+        public virtual Boolean AuthorizeDelete() { return true; }
+
+        /// <summary>
+        /// Determines whether the object is in a consistent, valid state.
+        /// </summary>
+        /// <returns></returns>
+        public virtual Boolean Validate() { return true; }
+
+
         public virtual Dictionary<String, String> ToDictionary(Boolean includeAllFields = false)
         {
             DataDefinition d = GetDefinition();
@@ -219,13 +243,15 @@ namespace QuickDAL
 
     }
 
+
+
     [Serializable]
-    public abstract class DataObject<T> : DataObject where T : DataObject<T>, new()
+    public abstract class DataObject<T, IDT> : DataObject where T : DataObject<T, IDT>, new()
     {
 
         public abstract QueryBuilder GetQueryBuilder();
 
-        public static T Get(Guid id)
+        public static T Get(IDT id)
         {
 
             // avoid unwanted table scans
@@ -281,6 +307,14 @@ namespace QuickDAL
             }
         }
 
+        public static List<T> GetAll(
+            String order = null,
+            Int32 limit = Int32.MaxValue,
+            T start = null)
+        {
+            return Get(new List<DataObject>() { }, false, order, limit, start);
+        }
+
         /// <summary>
         /// Updates or Inserts the record accordingly.
         /// </summary>
@@ -294,5 +328,19 @@ namespace QuickDAL
             }
         }
 
+        public Int32 Delete()
+        {
+            using (QueryBuilder qb = (new T()).GetQueryBuilder())
+            {
+                return qb.Delete(this);
+            }
+        }
+
     }
+
+    [Serializable]
+    public abstract class DataObject <T> : DataObject<T, Guid> where T : DataObject<T>, new()
+    {
+    }
+
 }
