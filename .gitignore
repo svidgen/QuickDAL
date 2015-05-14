@@ -3,3 +3,7 @@
 ################################################################################
 
 *.suo
+/QuickDAL/bin/Debug
+/QuickDALTests/bin/Debug
+/QuickDALTests/obj/Debug
+/QuickDAL/obj/Debug
