@@ -52,6 +52,7 @@
     <Compile Include="QuickAPI.cs" />
     <Compile Include="Reference.cs" />
     <Compile Include="TestQueryBuilder.cs" />
+    <Compile Include="TransactionalCollection.cs" />
     <Compile Include="TreeNode.cs" />
   </ItemGroup>
   <ItemGroup>
