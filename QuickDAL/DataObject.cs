@@ -290,7 +290,7 @@ namespace QuickDAL
 
         public virtual void Populate(System.Data.IDataReader reader)
         {
-            Populate(QueryBuilder.GetDictionary(reader));
+            Populate(SqlQueryBuilder.GetDictionary(reader));
         } // Populate(IDataReader)
 
 
@@ -362,7 +362,7 @@ namespace QuickDAL
             Int32 limit = Int32.MaxValue,
             T start = null)
         {
-            using (QueryBuilder qb = (new T()).GetQueryBuilder())
+            using (var qb = (new T()).GetQueryBuilder())
             {
                 return qb.Find<T>(conditions, fuzzy, order, limit, start);
             }
@@ -383,7 +383,7 @@ namespace QuickDAL
         /// <returns></returns>
         public Boolean Save(Boolean fullUpdate = false)
         {
-            using (QueryBuilder qb = (new T()).GetQueryBuilder())
+            using (var qb = (new T()).GetQueryBuilder())
             {
                 return qb.Save(this, fullUpdate) == 1;
             }
@@ -391,7 +391,7 @@ namespace QuickDAL
 
         public Int32 Delete()
         {
-            using (QueryBuilder qb = (new T()).GetQueryBuilder())
+            using (var qb = (new T()).GetQueryBuilder())
             {
                 return qb.Delete(this);
             }
