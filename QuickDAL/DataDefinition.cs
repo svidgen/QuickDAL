@@ -41,6 +41,8 @@ namespace QuickDAL
         public String DefaultOrder;
         public List<DataRelationship> Parents;
         public List<DataRelationship> Children;
+        public ICacheCollection CacheCollection;
+
 
         public DataDefinition()
         {
@@ -72,6 +74,21 @@ namespace QuickDAL
 
         public static Boolean operator ==(DataDefinition a, DataDefinition b)
         {
+            if (Object.ReferenceEquals(a, null) && Object.ReferenceEquals(b, null))
+            {
+                return true;
+            }
+
+            if (Object.ReferenceEquals(a, null))
+            {
+                return false;
+            }
+
+            if (Object.ReferenceEquals(b, null))
+            {
+                return false;
+            }
+
             return a.Equals(b);
         }
 

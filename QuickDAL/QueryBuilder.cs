@@ -78,7 +78,7 @@ namespace QuickDAL
         }
 
 
-        private IDbCommand CreateCommand()
+        public IDbCommand CreateCommand()
         {
             if (QueryProvider == QueryProviderOption.Connection)
             {
@@ -91,7 +91,7 @@ namespace QuickDAL
         }
 
 
-        private IDataReader ExecuteReader(IDbCommand query)
+        public IDataReader ExecuteReader(IDbCommand query)
         {
             if (QueryProvider == QueryProviderOption.Connection)
             {
@@ -104,7 +104,7 @@ namespace QuickDAL
             }
         }
 
-        private Int32 ExecuteNonQuery(IDbCommand query)
+        public Int32 ExecuteNonQuery(IDbCommand query)
         {
             if (QueryProvider == QueryProviderOption.Connection)
             {
@@ -118,7 +118,7 @@ namespace QuickDAL
         }
 
 
-        private Object ExecuteScalar(IDbCommand query)
+        public Object ExecuteScalar(IDbCommand query)
         {
             if (QueryProvider == QueryProviderOption.Connection)
             {
@@ -167,6 +167,33 @@ namespace QuickDAL
         } // Translate()
 
 
+        public List<T> Select<T>(IDbCommand query) where T : DataObject, new()
+        {
+            System.Diagnostics.Debug.WriteLine(DebugSQL.GetActualQuery(query));
+            List<T> rv = new List<T>();
+            var _rv = new List<T>();
+            using (IDataReader r = ExecuteReader(query))
+            {
+                while (r.Read())
+                {
+                    T row = new T();
+                    row.Populate(QueryBuilder.GetDictionary(r));
+                    _rv.Add(row);
+                }
+            }
+
+            foreach (var row in _rv)
+            {
+                if (!row.AuthorizeGet())
+                {
+                    throw new Exception("Not authorized to Get.");
+                }
+                rv.Add(row);
+            }
+            return rv;
+        }
+
+
         public List<T> Find<T>(
             List<DataObject> conditions,
             Boolean fuzzy = false,
@@ -181,7 +208,8 @@ namespace QuickDAL
             DataDefinition d = _t.GetDefinition();
             String distinctString = d.Distinctable ? "distinct" : "";
 
-            List<String> tables = new List<String>() { "[" + d.DataEntity + "] [" + d.Name + "]" };
+            //List<String> tables = new List<String>() { "[" + d.DataEntity + "] [" + d.Name + "]" };
+            List<String> tables = new List<String>() { string.Format("[{0}] [{1}] ", d.DataEntity, d.Name) };
             List<DataDefinition> condition_types = new List<DataDefinition>();
             Dictionary<String, List<Dictionary<String, String>>> where = new Dictionary<String, List<Dictionary<String, String>>>();
 
@@ -209,7 +237,8 @@ namespace QuickDAL
                             List<String> path = RelationshipPath(_t.GetDefinition(), od);
                             if (path.Count > 0)
                             {
-                                foreach (var t in path) {
+                                foreach (var t in path)
+                                {
                                     if (!tables.Contains(t))
                                     {
                                         tables.Add(t);
@@ -292,7 +321,14 @@ namespace QuickDAL
 
             using (IDbCommand query = CreateCommand())
             {
-                query.CommandText = "select " + distinctString + " top " + limit + " " + fullOrderField.Replace(" DESC","") + " " + topOrderByFieldAlias + "[" + d.Name + "].* from " + String.Join("\r\n", tables.ToArray());
+                if (limit == Int32.MaxValue) //Edit: Remove the "top" structure if no limit is being set.  Anecdotally, "top" can cause query slowdowns
+                {
+                    query.CommandText = "select " + distinctString + fullOrderField.Replace(" DESC", "") + " " + topOrderByFieldAlias + "[" + d.Name + "].* from " + String.Join("\r\n", tables.ToArray());
+                }
+                else
+                {
+                    query.CommandText = "select " + distinctString + " top " + limit + " " + fullOrderField.Replace(" DESC", "") + " " + topOrderByFieldAlias + "[" + d.Name + "].* from " + String.Join("\r\n", tables.ToArray());
+                }               
                 AppendWhere(query, where, fuzzy);
 
                 if (start != null && !String.IsNullOrEmpty(effectiveOrderColumn))
@@ -305,23 +341,7 @@ namespace QuickDAL
                 }
 
                 query.CommandText += " " + orderClause;
-
-                List<T> rv = new List<T>();
-                using (IDataReader r = ExecuteReader(query))
-                {
-                    while (r.Read())
-                    {
-                        T row = new T();
-                        row.Populate(QueryBuilder.GetDictionary(r));
-                        if (!row.AuthorizeGet())
-                        {
-                            throw new Exception("Not authorized to Get.");
-                        }
-                        rv.Add(row);
-                    }
-                }
-
-                return rv;
+                return Select<T>(query);
             }
         } // Find()
 
@@ -397,7 +417,7 @@ namespace QuickDAL
                 Guid newGuid = Guid.NewGuid();
                 GuidPK = d.Maps[d.PrimaryKey].PropertyType.Equals(typeof(Guid));
 
-                if (GuidPK && (!dv.ContainsKey(d.PrimaryKey) || dv[d.PrimaryKey].Equals(Guid.Empty.ToString())))
+                if (GuidPK && (!dv.ContainsKey(d.PrimaryKey) || dv[d.PrimaryKey] == null || dv[d.PrimaryKey].Equals(Guid.Empty.ToString())))
                 {
                     dv[d.PrimaryKey] = newGuid.ToString();
                 }
@@ -424,12 +444,12 @@ namespace QuickDAL
                 {
                     IDbDataParameter parameter = query.CreateParameter();
                     parameter.ParameterName = k;
-                    parameter.Value = dv[k];
+                    parameter.Value = dv[k] == null ? (object)DBNull.Value : (object)dv[k];
                     query.Parameters.Add(parameter);
                 }
-                
+
                 Int32 rv = ExecuteNonQuery(query);
-                
+
                 //
                 // NOTE : No idea whether the following insertid handling is correct.
                 // It works in my single test-case. Much more testing is required ... 
@@ -473,9 +493,14 @@ namespace QuickDAL
             var PK_value = dv[d.PrimaryKey];
             dv.Remove(PK_key);
 
+            if (dv.Count == 0)
+            {
+                return 0;
+            }
+
             using (IDbCommand query = CreateCommand())
             {
-                query.CommandText = "update " + d.DataEntity;
+                query.CommandText = "update [" + d.DataEntity + "]";
                 AppendSet(query, dv);
                 AppendWhere(query, PK_key, "=", PK_value);
 
@@ -498,19 +523,16 @@ namespace QuickDAL
             }
 
             var dv = o.ToDictionary();
-
-            if (dv.Count > 0)
+            if (dv.Count == 0)
             {
-                using (IDbCommand query = CreateCommand())
-                {
-                    query.CommandText = "delete from " + o.GetDefinition().DataEntity;
-                    AppendWhere(query, dv);
-                    return ExecuteNonQuery(query);
-                }
+                throw new Exception("No DELETE conditions were given.");
             }
-            else
+
+            using (IDbCommand query = CreateCommand())
             {
-                return 0;
+                query.CommandText = "delete from " + o.GetDefinition().DataEntity;
+                AppendWhere(query, dv);
+                return ExecuteNonQuery(query);
             }
         }
 
@@ -584,7 +606,7 @@ namespace QuickDAL
             List<String> c = new List<String>();
             foreach (KeyValuePair<String, String> pair in pairs)
             {
-                if (pair.Value != null && !String.IsNullOrEmpty(pair.Key))
+                if (/* pair.Value != null && */ !String.IsNullOrEmpty(pair.Key))
                 {
                     GlobalParamterCount = (GlobalParamterCount + 1) % 1000;
                     String pname = pair.Key.Replace(".", "_") + GlobalParamterCount.ToString();
@@ -593,7 +615,7 @@ namespace QuickDAL
                     c.Add(kname + " " + comparison + " @" + pname);
                     IDbDataParameter parameter = query.CreateParameter();
                     parameter.ParameterName = pname;
-                    parameter.Value = pair.Value;
+                    parameter.Value = pair.Value == null ? (object)DBNull.Value : (object)pair.Value;
                     query.Parameters.Add(parameter);
                 }
             }

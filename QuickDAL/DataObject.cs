@@ -11,6 +11,8 @@ namespace QuickDAL
     {
         public abstract DataDefinition GetDefinition();
 
+        public static ICacheCollection Items { get; set; }
+
         public Boolean _OmitBooleansInSearch = true;
         public Boolean OmitBooleansInSearch
         {
@@ -45,7 +47,13 @@ namespace QuickDAL
         /// Determines whether the object is in a consistent, valid state.
         /// </summary>
         /// <returns></returns>
-        public virtual Boolean Validate() { return true; }
+        public virtual Boolean Validate() {return true; }
+
+
+        public Dictionary<String, String> Compare(DataObject comparedObject)
+        {
+            return this.ToDictionary().Where(entry => comparedObject.ToDictionary()[entry.Key] != entry.Value).ToDictionary(entry => entry.Key, entry => entry.Value);
+        }
 
 
         public virtual Dictionary<String, String> ToDictionary(Boolean includeAllFields = false)
@@ -59,13 +67,29 @@ namespace QuickDAL
                 Object Value = m.Value.Get();
                 Type t = m.Value.PropertyType;
 
+
                 if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>) && Value == null)
                 {
-                    // omit the value.
+                    if (includeAllFields)
+                    {
+                        rv.Add(m.Key, null);
+                    }
+                    else
+                    {
+                        // omit the value.
+                    }
                 }
                 else if (Value is String)
                 {
                     rv.Add(m.Key, (String)Value);
+                }
+                else if (t.Equals(typeof(Int16?)) || t.Equals(typeof(UInt16?)) || t.Equals(typeof(Int32?)) || t.Equals(typeof(UInt32?)) || t.Equals(typeof(Int64?)))
+                {
+                    String v = Value.ToString();
+                    if (includeAllFields || !String.IsNullOrEmpty(v))
+                    {
+                        rv.Add(m.Key, v);
+                    }
                 }
                 else if (Value is Int16 || Value is UInt16 || Value is Int32 || Value is UInt32 || Value is Int64)
                 {
@@ -86,17 +110,40 @@ namespace QuickDAL
                 else if (Value is DateTime)
                 {
                     DateTime v = (DateTime)Value;
-                    if (includeAllFields || ( v != null && v != DateTime.MinValue ))
+                    if (includeAllFields || (v != null && v != DateTime.MinValue))
                     {
                         rv.Add(m.Key, v.ToString());
+                    }
+                }
+                else if (t.Equals(typeof(Guid?)))
+                {
+                    Guid? v = (Guid?)Value;
+                    if (includeAllFields || v.HasValue)
+                    {
+                        rv.Add(m.Key, (v == null || v == Guid.Empty) ? Guid.Empty.ToString() : v.ToString());
                     }
                 }
                 else if (Value is Guid)
                 {
                     Guid v = (Guid)Value;
-                    if (includeAllFields || ( v != null && v != Guid.Empty ))
+                    if (includeAllFields || (v != null && v != Guid.Empty))
                     {
-                        rv.Add(m.Key, v.ToString());
+                        if (v == Guid.Empty)
+                        {
+                            rv.Add(m.Key, null);
+                        }
+                        else
+                        {
+                            rv.Add(m.Key, v.ToString());
+                        }
+                    }
+                }
+                else if (t.Equals(typeof(Boolean?)))
+                {
+                    Boolean? v = (Boolean?)Value;
+                    if (includeAllFields || v.HasValue)
+                    {
+                        rv.Add(m.Key, v == true ? "1" : "0");
                     }
                 }
                 else if (Value is Boolean)
@@ -110,11 +157,12 @@ namespace QuickDAL
                 else if (Value is Byte[])
                 {
                     Byte[] v = (Byte[])Value;
-                    if (includeAllFields || ( v != null && v.Length > 0 ))
+                    if (includeAllFields || (v != null && v.Length > 0))
                     {
                         rv.Add(m.Key, System.Text.Encoding.UTF8.GetString(v));
                     }
                 }
+
             }
 
             return rv;
@@ -206,9 +254,21 @@ namespace QuickDAL
                             }
                             property.Set(g);
                         }
-                        else if (t == typeof(Boolean))
+                        else if (t == typeof(Nullable<Boolean>) || t == typeof(Boolean))
                         {
-                            property.Set(Convert.ToBoolean(pair.Value));
+                            if (pair.Value != null) {
+                                Boolean v = false;
+                                switch (pair.Value.ToLower())
+                                {
+                                    case "1":
+                                    case "true":
+                                        v = true;
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                property.Set(v);
+                            }
                         }
                         else if (t == typeof(String))
                         {
@@ -262,7 +322,8 @@ namespace QuickDAL
 
             T t = new T();
             DataDefinition d = t.GetDefinition();
-            if (!String.IsNullOrEmpty(d.PrimaryKey) && d.Maps[d.PrimaryKey].PropertyType == typeof(Guid))
+            //if (!String.IsNullOrEmpty(d.PrimaryKey) && d.Maps[d.PrimaryKey].PropertyType == typeof(Guid)) //causing Get to fail if type was anything but a GUID
+            if (!String.IsNullOrEmpty(d.PrimaryKey) && d.Maps[d.PrimaryKey].PropertyType == typeof(IDT))
             {
                 d.Maps[d.PrimaryKey].Set(id);
                 var list = Get(t);
