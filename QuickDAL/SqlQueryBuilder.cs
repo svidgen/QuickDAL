@@ -376,7 +376,7 @@ namespace QuickDAL
         /// <param name="o">The object to save</param>
         /// <param name="fullUpdate">Whether to set nulls, 0's, and empty strings values in the update, which are otherwise ignored.</param>
         /// <returns>number of rows affected</returns>
-        public Int32 Save(DataObject o, Boolean fullUpdate = false)
+        public Int32 Save<T>(T o, Boolean fullUpdate = false) where T : DataObject, new()
         {
             if (!o.Validate())
             {
@@ -515,7 +515,7 @@ namespace QuickDAL
         /// <typeparam name="T"></typeparam>
         /// <param name="o"></param>
         /// <returns></returns>
-        public Int32 Delete(DataObject o)
+        public Int32 Delete<T>(T o) where T : DataObject, new()
         {
             if (!o.AuthorizeDelete())
             {
@@ -545,59 +545,7 @@ namespace QuickDAL
 
         public List<String> RelationshipPath(DataDefinition a, DataDefinition b, Int32 maxNodes)
         {
-            var rv = new List<String>();
-
-            if (a != b)
-            {
-                Queue<TreeNode<DataRelationship>> q = new Queue<TreeNode<DataRelationship>>();
-
-                foreach (DataRelationship d in a.Parents)
-                {
-                    q.Enqueue(new TreeNode<DataRelationship>(d));
-                }
-
-                foreach (DataRelationship d in a.Children)
-                {
-                    q.Enqueue(new TreeNode<DataRelationship>(d));
-                }
-
-                while (q.Count > 0 && maxNodes > 0)
-                {
-                    TreeNode<DataRelationship> path = q.Dequeue();
-                    DataRelationship d = path.Value;
-
-                    // we found it!
-                    if (d.RemoteEntity.GetDefinition() == b)
-                    {
-                        while (path != null && path.Value != null)
-                        {
-                            rv.Add(path.Value.InnerJoinSQL);
-                            path = path.Parent;
-                        }
-
-                        // necessary? ... not sure.
-                        rv.Reverse();
-
-                        maxNodes = 0;
-                    }
-                    else
-                    {
-                        foreach (DataRelationship subd in d.RemoteEntity.GetDefinition().Parents)
-                        {
-                            q.Enqueue(new TreeNode<DataRelationship>(subd, path));
-                        }
-
-                        foreach (DataRelationship subd in d.RemoteEntity.GetDefinition().Children)
-                        {
-                            q.Enqueue(new TreeNode<DataRelationship>(subd, path));
-                        }
-                    }
-
-                    maxNodes--;
-                }
-            }
-
-            return rv;
+            return (new JoinPath(a, b, maxNodes)).SqlInnerJoins;
         } // RelationshipPath()
 
 

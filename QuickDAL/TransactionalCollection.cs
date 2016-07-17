@@ -7,11 +7,18 @@ using System.Text;
 
 namespace QuickDAL
 {
-    public class TransactionalCollection<T> : ICollection<T>, IEnlistmentNotification
+    public class TransactionalCollection<T> : ICollection<T>, IEnlistmentNotification where T : DataObject, new()
     {
 
+        private String PK;
         private Dictionary<String, T> Items = new Dictionary<String, T>();
         private Dictionary<String, T> RollbackItems = new Dictionary<String, T>();
+
+        public TransactionalCollection()
+        {
+            var sample = new T();
+            PK = sample.GetDefinition().PrimaryKey;
+        }
 
         #region ICollection<T>
 
@@ -31,14 +38,53 @@ namespace QuickDAL
             }
         }
 
+        private String GetObjectKey(T value)
+        {
+            return value.ToDictionary()[PK];
+        }
+
         public void Add(T item)
         {
-            throw new NotImplementedException();
+            var key = GetObjectKey(item);
+
+            if (JoinCurrentTransaction() && !RollbackItems.ContainsKey(key))
+            {
+                if (Items.ContainsKey(key))
+                {
+                    RollbackItems[key] = Items[key];
+                }
+                else
+                {
+                    RollbackItems[key] = null;
+                }
+            }
+        }
+
+        public bool Remove(T item)
+        {
+            var key = GetObjectKey(item);
+            if (!Items.ContainsKey(key))
+            {
+                return false;
+            }
+
+            if (JoinCurrentTransaction() && !RollbackItems.ContainsKey(key))
+            {
+                RollbackItems[key] = Items[key];
+            }
+            return Items.Remove(key);
         }
 
         public void Clear()
         {
-            throw new NotImplementedException();
+            if (JoinCurrentTransaction())
+            {
+                foreach (var kv in Items)
+                {
+                    RollbackItems.Add(kv.Key, kv.Value);
+                }
+            }
+            Items.Clear();
         }
 
         public bool Contains(T item)
@@ -56,11 +102,6 @@ namespace QuickDAL
             return Items.Values.GetEnumerator();
         }
 
-        public bool Remove(T item)
-        {
-            throw new NotImplementedException();
-        }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return Items.GetEnumerator();
@@ -70,33 +111,46 @@ namespace QuickDAL
 
         #region IEnlistmentNotification + Transactional helpers
 
-        private void JoinCurrentTransaction()
+        private Boolean JoinCurrentTransaction()
         {
             var currentTransaction = Transaction.Current;
             if (currentTransaction != null)
             {
                 currentTransaction.EnlistVolatile(this, EnlistmentOptions.None);
+                return true;
             }
+            return false;
         }
 
         public void Commit(Enlistment enlistment)
         {
-            throw new NotImplementedException();
+            RollbackItems.Clear();
         }
-        
+
         public void InDoubt(Enlistment enlistment)
         {
-            throw new NotImplementedException();
+            // no InDoubt() action
         }
 
         public void Prepare(PreparingEnlistment preparingEnlistment)
         {
-            throw new NotImplementedException();
+            preparingEnlistment.Prepared();
         }
-        
+
         public void Rollback(Enlistment enlistment)
         {
-            throw new NotImplementedException();
+            foreach (var kv in RollbackItems)
+            {
+                if (kv.Value == null)
+                {
+                    Items.Remove(kv.Key);
+                }
+                else
+                {
+                    Items[kv.Key] = kv.Value;
+                }
+            }
+            RollbackItems.Clear();
         }
 
         #endregion IEnlistmentNotification

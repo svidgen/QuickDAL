@@ -22,7 +22,7 @@ namespace QuickDAL
         ) where T : DataObject, new();
 
         List<T> Find<T>() where T : DataObject, new();
-        Int32 Save(DataObject o, Boolean fullUpdate = false);
-        Int32 Delete(DataObject o);
+        Int32 Save<T>(T o, Boolean fullUpdate = false) where T : DataObject, new();
+        Int32 Delete<T>(T o) where T : DataObject, new();
     }
 }
