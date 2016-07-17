@@ -52,25 +52,49 @@ namespace QuickDAL
 
         public List<T> Find<T>(List<DataObject> conditions, bool fuzzy = false, string order = null, int limit = int.MaxValue, T start = null) where T : DataObject, new()
         {
+            // naive solution...
+
             // start with all the stuff ...
-            var rv = GetCollection<T>().ToList();
+            var rv = new List<T>();
             var rv_sample = (new T());
 
             // iteratively remove items that don't have matches.
             conditions.GroupBy(c => c.GetDefinition().DataEntity).ToList()
-            .ForEach(g =>
-            {
-                var joinpath = new JoinPath(rv_sample, g.First());
-
-                rv = rv.Where(v => {
-                    return g.ToList().Any(c =>
-                    {
-                        return ???;
-                    });
-                }).ToList();
-            });
+                .ForEach(g => rv.AddRange(v => RecursiveSelect<T>(g.ToList())))
+            ;
 
             return rv;
+        }
+
+        private List<T> RecursiveSelect<T>(List<DataObject> conditions) where T : DataObject, new()
+        {
+            var joinpath = new JoinPath((new T()), conditions.First());
+            var collection = (ICollection<Object>)Tables[conditions.First().GetDefinition().DataEntity];
+
+            var conditionMatchingRecords = collection.Where(record => conditions.Any(c => Matches((DataObject)record, c))).ToList();
+
+            if (joinpath.Relationships.Count == 0)
+            {
+                return conditionMatchingRecords.Select(r => (T)r).ToList();
+            } else
+            {
+                // ???
+            }
+
+        }
+
+        private Boolean Matches(DataObject o, DataObject condition)
+        {
+            var _o = o.ToDictionary();
+            var _condition = condition.ToDictionary();
+            foreach (var kv in _condition)
+            {
+                if (!_o[kv.Key].Equals(kv.Value))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public int Save<T>(T o, bool fullUpdate = false) where T : DataObject, new()
