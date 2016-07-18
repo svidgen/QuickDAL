@@ -302,7 +302,10 @@ namespace QuickDAL
         } // Populate(String, String)
 
 
-        public abstract DataObject Copy();
+        public virtual DataObject Copy()
+        {
+            return (DataObject)this.MemberwiseClone();
+        }
 
     }
 
@@ -400,12 +403,12 @@ namespace QuickDAL
             }
         }
 
-        public override DataObject Copy()
-        {
-            var rv = new T();
-            rv.Populate(ToDictionary(true));
-            return rv;
-        }
+        //public override DataObject Copy()
+        //{
+        //    var rv = new T();
+        //    rv.Populate(ToDictionary(true));
+        //    return rv;
+        //}
 
     }
 

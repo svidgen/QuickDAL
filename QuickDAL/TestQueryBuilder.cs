@@ -54,14 +54,26 @@ namespace QuickDAL
         {
             // naive solution...
 
-            // start with all the stuff ...
             var rv = new List<T>();
-            var rv_sample = (new T());
+            var PK = (new T()).GetDefinition().PrimaryKey;
 
-            // iteratively remove items that don't have matches.
-            conditions.GroupBy(c => c.GetDefinition().DataEntity).ToList()
-                .ForEach(g => rv.AddRange(v => RecursiveSelect<T>(g.ToList())))
-            ;
+            // group the conditions by type/table
+            var conditionGroups = conditions.GroupBy(c => c.GetDefinition().DataEntity).ToList();
+
+            // the first group will be used to form the base set.
+            var baseConditions = conditionGroups.First().ToList();
+            rv.AddRange(RecursiveSelect<T>(baseConditions));
+            conditionGroups.RemoveAt(0);
+
+            // subsequent conditions serve to eliminate rows.                
+            while (conditionGroups.Count > 0)
+            {
+                var joinConditions = conditionGroups.First().ToList();
+                var joinRecords = RecursiveSelect<T>(joinConditions);
+                var joinRecordPKs = joinRecords.Select(r => r.ToDictionary()[PK]).ToList();
+                rv = rv.Where(row => joinRecordPKs.Contains(row.ToDictionary()[PK])).ToList();
+                conditionGroups.RemoveAt(0);
+            }
 
             return rv;
         }
