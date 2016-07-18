@@ -112,7 +112,7 @@ namespace QuickDAL
             var _condition = condition.ToDictionary();
             foreach (var kv in _condition)
             {
-                if (!_o[kv.Key].Equals(kv.Value))
+                if (!_o.ContainsKey(kv.Key) || !_o[kv.Key].Equals(kv.Value))
                 {
                     return false;
                 }

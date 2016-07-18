@@ -6,7 +6,7 @@ using System.Linq;
 namespace QuickDALTests
 {
     [TestClass]
-    public class DataObjectTests
+    public class DataObjectTests : ScopedTestClass
     {
 
         public static void AssertFullMatch(SimpleDataObject a, SimpleDataObject b)
@@ -101,7 +101,9 @@ namespace QuickDALTests
         [TestMethod]
         public void DataObject_CanBeSavedAndRetrievedById()
         {
-            var guid = new Guid("CA37A611-B7F4-4EE8-AE2F-D32FB2D0D151");
+            var guid = new Guid("AA37A611-B7F4-4EE8-AE2F-D32FB2D0D151");
+            var distractorguid = new Guid("00000000-B7F4-4EE8-AE2F-D32FB2D0D151");
+
             var o = new SimpleDataObject()
             {
                 BooleanValue = true,
@@ -112,8 +114,42 @@ namespace QuickDALTests
             };
             o.Save();
 
+            var distractor = new SimpleDataObject()
+            {
+                GuidValue = distractorguid
+            };
+            distractor.Save();
+
             var test = SimpleDataObject.Get(guid);
             AssertFullMatch(o, test);
+        }
+
+        [TestMethod]
+        public void DataObject_CanBeRetrievedByString()
+        {
+            var guid = new Guid("AB37A611-B7F4-4EE8-AE2F-D32FB2D0D151");
+            var distractorguid = new Guid("00000000-B7F4-4EE8-AE2F-D32FB2D0D151");
+
+            var str = "retrieval string";
+            var o = new SimpleDataObject()
+            {
+                BooleanValue = true,
+                DoubleValue = 12,
+                Int32Value = 24,
+                GuidValue = guid,
+                StringValue = str
+            };
+            o.Save();
+
+            var distractor = new SimpleDataObject()
+            {
+                GuidValue = distractorguid
+            };
+            distractor.Save();
+
+            var test = SimpleDataObject.Get(new SimpleDataObject() { StringValue = str });
+            Assert.AreEqual(1, test.Count);
+            AssertFullMatch(o, test[0]);
         }
 
     }
