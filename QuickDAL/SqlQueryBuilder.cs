@@ -376,7 +376,7 @@ namespace QuickDAL
         /// <param name="o">The object to save</param>
         /// <param name="fullUpdate">Whether to set nulls, 0's, and empty strings values in the update, which are otherwise ignored.</param>
         /// <returns>number of rows affected</returns>
-        public Int32 Save<T>(T o, Boolean fullUpdate = false) where T : DataObject, new()
+        public Int32 Save(DataObject o, Boolean fullUpdate = false)
         {
             if (!o.Validate())
             {
@@ -515,7 +515,7 @@ namespace QuickDAL
         /// <typeparam name="T"></typeparam>
         /// <param name="o"></param>
         /// <returns></returns>
-        public Int32 Delete<T>(T o) where T : DataObject, new()
+        public Int32 Delete(DataObject o)
         {
             if (!o.AuthorizeDelete())
             {

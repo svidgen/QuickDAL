@@ -8,24 +8,24 @@ namespace QuickDAL
     public class TestQueryBuilder : QueryBuilder
     {
 
-        private static Dictionary<String, Object> Tables = new Dictionary<String, Object>();
+        private static Dictionary<String, TransactionalCollection<DataObject>> Tables = new Dictionary<String, TransactionalCollection<DataObject>>();
 
-        private TransactionalCollection<T> GetCollection<T>() where T : DataObject, new()
+        private TransactionalCollection<DataObject> GetCollection<T>() where T : DataObject, new()
         {
             return GetCollection(new T());
         }
 
-        private TransactionalCollection<T> GetCollection<T>(T o) where T : DataObject, new()
+        private TransactionalCollection<DataObject> GetCollection(DataObject o)
         {
             var collectionName = o.GetDefinition().DataEntity;
             if (!Tables.ContainsKey(collectionName))
             {
-                Tables[collectionName] = new TransactionalCollection<T>();
+                Tables[collectionName] = new TransactionalCollection<DataObject>();
             }
-            return (TransactionalCollection<T>)Tables[collectionName];
+            return Tables[collectionName];
         }
 
-        public int DeleteT<T>(T o) where T : DataObject, new()
+        public int Delete(DataObject o)
         {
             var collection = GetCollection(o);
             var removed = collection.Remove(o);
@@ -42,7 +42,7 @@ namespace QuickDAL
         public List<T> Find<T>() where T : DataObject, new()
         {
             var collection = GetCollection<T>();
-            return collection.ToList();
+            return collection.Select(o => (T)o).ToList();
         }
 
         public List<T> Find<T>(DataObject condition, bool fuzzy = false, string order = null, int limit = int.MaxValue, T start = null) where T : DataObject, new()
@@ -69,18 +69,29 @@ namespace QuickDAL
         private List<T> RecursiveSelect<T>(List<DataObject> conditions) where T : DataObject, new()
         {
             var joinpath = new JoinPath((new T()), conditions.First());
-            var collection = (ICollection<Object>)Tables[conditions.First().GetDefinition().DataEntity];
+            var collection = GetCollection(conditions.First());
 
-            var conditionMatchingRecords = collection.Where(record => conditions.Any(c => Matches((DataObject)record, c))).ToList();
+            var rightHandRecords = collection.Where(record => conditions.Any(c => Matches(record, c))).ToList();
 
             if (joinpath.Relationships.Count == 0)
             {
-                return conditionMatchingRecords.Select(r => (T)r).ToList();
-            } else
-            {
-                // ???
+                // the selected records ARE the rows we're looking for.
+                return rightHandRecords.Select(r => (T)r).ToList();
             }
 
+            var nextJoin = joinpath.Relationships.Last();
+
+            var joinEntityLeft = nextJoin.LocalEntity;
+            var joinFieldLeft = nextJoin.LocalField;
+            var joinFieldRight = nextJoin.RemoteField;
+
+            var newConditions = rightHandRecords.Select(r => {
+                var newCondition = joinEntityLeft.Copy();
+                newCondition.Populate(joinFieldLeft, r.ToDictionary()[joinFieldRight]);
+                return newCondition;
+            }).ToList();
+
+            return RecursiveSelect<T>(newConditions);
         }
 
         private Boolean Matches(DataObject o, DataObject condition)
@@ -97,7 +108,7 @@ namespace QuickDAL
             return true;
         }
 
-        public int Save<T>(T o, bool fullUpdate = false) where T : DataObject, new()
+        public int Save(DataObject o, bool fullUpdate = false)
         {
             var collection = GetCollection(o);
             collection.Add(o);
@@ -134,3 +145,4 @@ namespace QuickDAL
         #endregion
     }
 }
+

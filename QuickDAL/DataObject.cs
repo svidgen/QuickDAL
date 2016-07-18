@@ -301,6 +301,9 @@ namespace QuickDAL
             Populate(row);
         } // Populate(String, String)
 
+
+        public abstract DataObject Copy();
+
     }
 
 
@@ -395,6 +398,13 @@ namespace QuickDAL
             {
                 return qb.Delete(this);
             }
+        }
+
+        public override DataObject Copy()
+        {
+            var rv = new T();
+            rv.Populate(ToDictionary(true));
+            return rv;
         }
 
     }
