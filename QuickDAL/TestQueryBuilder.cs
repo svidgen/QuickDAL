@@ -47,7 +47,7 @@ namespace QuickDAL
 
         public List<T> Find<T>(DataObject condition, bool fuzzy = false, string order = null, int limit = int.MaxValue, T start = null) where T : DataObject, new()
         {
-            throw new NotImplementedException();
+            return Find<T>(new List<DataObject>() { condition }, fuzzy, order, limit, start);
         }
 
         public List<T> Find<T>(List<DataObject> conditions, bool fuzzy = false, string order = null, int limit = int.MaxValue, T start = null) where T : DataObject, new()

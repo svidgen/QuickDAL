@@ -7,7 +7,7 @@ using QuickDAL;
 
 namespace QuickDALTests.SampleClasses
 {
-    class SimpleDataObject : DataObject
+    public class SimpleDataObject : DataObject<SimpleDataObject>
     {
 
         public String StringValue { get; set; }
@@ -20,6 +20,8 @@ namespace QuickDALTests.SampleClasses
         {
             return new DataDefinition()
             {
+                PrimaryKey = "GuidValue",
+                DataEntity = "SimpleDataObject",
                 Maps = new Dictionary<string, IReference>()
                 {
                     {"StringValue", new Reference<String>(() => StringValue, (v) => StringValue = v)},
@@ -29,6 +31,11 @@ namespace QuickDALTests.SampleClasses
                     {"GuidValue", new Reference<Guid>(() => GuidValue, (v) => GuidValue = v)}
                 }
             };
+        }
+
+        public override QueryBuilder GetQueryBuilder()
+        {
+            return QueryBuilderLocator.GetQueryBuilder();
         }
 
     }

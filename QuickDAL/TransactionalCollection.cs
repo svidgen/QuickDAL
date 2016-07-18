@@ -57,6 +57,8 @@ namespace QuickDAL
                     RollbackItems[key] = null;
                 }
             }
+
+            Items[key] = item;
         }
 
         public bool Remove(T item)

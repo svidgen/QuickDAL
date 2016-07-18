@@ -1,12 +1,25 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using QuickDALTests.SampleClasses;
+using System.Linq;
 
 namespace QuickDALTests
 {
     [TestClass]
     public class DataObjectTests
     {
+
+        public static void AssertFullMatch(SimpleDataObject a, SimpleDataObject b)
+        {
+            var dict_a = a.ToDictionary();
+            var dict_b = b.ToDictionary();
+
+            Assert.AreEqual(dict_a.Count, dict_b.Count);
+            foreach (var k in dict_a.Keys)
+            {
+                Assert.AreEqual(dict_a[k], dict_b[k]);
+            }
+        }
         
         [TestMethod]
         public void DataObject_CanSerializeStrings()
@@ -85,6 +98,23 @@ namespace QuickDALTests
             Assert.AreEqual(guidstring.ToLower(), d["GuidValue"]);
         }
 
+        [TestMethod]
+        public void DataObject_CanBeSavedAndRetrievedById()
+        {
+            var guid = new Guid("CA37A611-B7F4-4EE8-AE2F-D32FB2D0D151");
+            var o = new SimpleDataObject()
+            {
+                BooleanValue = true,
+                DoubleValue = 32,
+                Int32Value = 64,
+                GuidValue = guid,
+                StringValue = "a string"
+            };
+            o.Save();
+
+            var test = SimpleDataObject.Get(guid);
+            AssertFullMatch(o, test);
+        }
 
     }
 }
