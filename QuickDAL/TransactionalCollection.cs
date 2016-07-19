@@ -10,6 +10,7 @@ namespace QuickDAL
     public class TransactionalCollection<T> : ICollection<T>, IEnlistmentNotification where T : DataObject
     {
 
+        private Int32 NextInt32 = 1;
         private Dictionary<String, T> Items = new Dictionary<String, T>();
         private Dictionary<String, T> RollbackItems = new Dictionary<String, T>();
 
@@ -36,29 +37,57 @@ namespace QuickDAL
             return value.GetDefinition().PrimaryKey;
         }
 
-        private String GetObjectKeyValue(T value)
+        private String GetObjectKeyValue(T value, Boolean setIfEmpty = false)
         {
             var PK = GetObjectKey(value);
-            return value.ToDictionary()[PK];
+            var valueProperties = value.ToDictionary();
+            if (valueProperties.ContainsKey(PK))
+            {
+                return valueProperties[PK];
+            } else if (setIfEmpty)
+            {
+                return SetObjectKeyValue(value);
+            }
+            {
+                return null;
+            }
+        }
+
+        public String SetObjectKeyValue(T value)
+        {
+            var PKField = GetObjectKey(value);
+            var PKMap = value.GetDefinition().Maps[PKField];
+
+            if (PKMap.PropertyType.Equals(typeof(Guid)))
+            {
+                var PKGuid = Guid.NewGuid();
+                PKMap.Set(PKGuid);
+                return PKGuid.ToString();
+            } else
+            {
+                var PKInt = NextInt32++;
+                PKMap.Set(PKInt);
+                return PKInt.ToString();
+            }
         }
 
         public void Add(T item)
         {
-            var key = GetObjectKeyValue(item);
+            var keyvalue = GetObjectKeyValue(item, true);
 
-            if (JoinCurrentTransaction() && !RollbackItems.ContainsKey(key))
+            if (JoinCurrentTransaction() && !RollbackItems.ContainsKey(keyvalue))
             {
-                if (Items.ContainsKey(key))
+                if (Items.ContainsKey(keyvalue))
                 {
-                    RollbackItems[key] = Items[key];
+                    RollbackItems[keyvalue] = Items[keyvalue];
                 }
                 else
                 {
-                    RollbackItems[key] = null;
+                    RollbackItems[keyvalue] = null;
                 }
             }
 
-            Items[key] = item;
+            Items[keyvalue] = item;
         }
 
         public bool Remove(T item)
