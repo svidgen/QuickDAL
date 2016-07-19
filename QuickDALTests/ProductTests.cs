@@ -12,7 +12,7 @@ namespace QuickDALTests
     public class ProductTests : ScopedTestClass
     {
         [TestMethod]
-        public void Product_CanBeSavedAndRetrieved()
+        public void Product_CanBeSavedAndRetrievedById()
         {
             var p = new Product()
             {
