@@ -22,6 +22,7 @@ namespace QuickDALTests
             p.Save();
 
             var test = Product.Get(p.ProductId);
+
             Assert.AreEqual(p.ProductId, test.ProductId);
             Assert.AreEqual(p.Name, test.Name);
             Assert.AreEqual(p.UnitPrice, test.UnitPrice);

@@ -21,6 +21,7 @@ namespace QuickDALTests
             line.Save();
 
             var test = LineItem.Get(line.LineItemId);
+
             Assert.AreEqual(line.LineItemId, test.LineItemId);
             Assert.AreEqual(line.Quantity, test.Quantity);
         }
@@ -30,7 +31,6 @@ namespace QuickDALTests
         {
             var product = new Product() { Name = "whatever", UnitPrice = 22.22M };
             product.Save();
-
             var line = new LineItem()
             {
                 Quantity = 23,
@@ -39,6 +39,7 @@ namespace QuickDALTests
             line.Save();
 
             var test = LineItem.Get(line.LineItemId);
+
             Assert.AreEqual(product.ProductId, test.Product.ProductId);
             Assert.AreEqual(product.Name, test.Product.Name);
         }
