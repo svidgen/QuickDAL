@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using QuickDALTests.SampleClasses;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SampleDomain;
 
-namespace QuickDALTests
+namespace SampleDomainTests
 {
     [TestClass]
     public class ProductTests : ScopedTestClass

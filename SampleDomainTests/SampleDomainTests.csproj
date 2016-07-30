@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{120411A8-BF34-4869-8503-6F04274162D8}</ProjectGuid>
+    <ProjectGuid>{6E3AFA4D-846B-4604-9CD3-9E8E47C67AA4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QuickDALTests</RootNamespace>
-    <AssemblyName>QuickDALTests</AssemblyName>
+    <RootNamespace>SampleDomainTests</RootNamespace>
+    <AssemblyName>SampleDomainTests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -51,21 +51,19 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="DataObjectTests.cs" />
-    <Compile Include="ChildTests.cs" />
-    <Compile Include="ParentTests.cs" />
+    <Compile Include="LineItemTests.cs" />
+    <Compile Include="ProductTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryBuilderLocator.cs" />
-    <Compile Include="TestCaseClasses\Child.cs" />
-    <Compile Include="TestCaseClasses\GrandChild.cs" />
-    <Compile Include="TestCaseClasses\Parent.cs" />
-    <Compile Include="TestCaseClasses\SimpleDataObject.cs" />
     <Compile Include="TestContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QuickDAL\QuickDAL.csproj">
       <Project>{55ddbfa4-3467-44de-8b2a-bed6b4578e81}</Project>
       <Name>QuickDAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SampleDomain\SampleDomain.csproj">
+      <Project>{0e260c72-e55a-4d77-8bd4-a1ecdcc62555}</Project>
+      <Name>SampleDomain</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using QuickDAL;
 
-namespace QuickDALTests.SampleClasses
+namespace SampleDomain
 {
-    public class LineItem : DataObject<LineItem>
+    public class LineItem : Services.Persistent<LineItem>
     {
         public Guid LineItemId { get; set; }
         private Guid SalesOrderId { get; set; }
@@ -57,12 +57,6 @@ namespace QuickDALTests.SampleClasses
                     ProductId = value.ProductId;
                 }
             }
-        }
-
-
-        public override QueryBuilder GetQueryBuilder()
-        {
-            return QueryBuilderLocator.GetQueryBuilder();
         }
 
         public override DataDefinition GetDefinition()

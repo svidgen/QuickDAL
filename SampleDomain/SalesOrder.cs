@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using QuickDAL;
 
-namespace QuickDALTests.SampleClasses
+namespace SampleDomain
 {
-    public class SalesOrder : DataObject<SalesOrder>
+    public class SalesOrder : Services.Persistent<SalesOrder>
     {
 
         public Guid SalesOrderId { get; set; }
@@ -33,12 +33,6 @@ namespace QuickDALTests.SampleClasses
                     CustomerId = _Customer.CustomerId;
                 }
             }
-        }
-
-
-        public override QueryBuilder GetQueryBuilder()
-        {
-            return QueryBuilderLocator.GetQueryBuilder();
         }
 
         public override DataDefinition GetDefinition()

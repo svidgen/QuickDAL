@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using QuickDALTests.SampleClasses;
 using System.Linq;
+using QuickDALTests.TestCaseClasses;
 
 namespace QuickDALTests
 {
