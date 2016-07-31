@@ -24,6 +24,10 @@ namespace SampleDomain
                     {"ProductId", new Reference<Guid>(() => ProductId, (v) => ProductId = v)},
                     {"Name", new Reference<String>(() => Name, (v) => Name = v)},
                     {"UnitPrice", new Reference<Decimal>(() => UnitPrice, (v) => UnitPrice = v)},
+                },
+                Parents = new RelationshipCollection()
+                {
+                    new DataRelationship<Product,LineItem>("ProductId")
                 }
             };
         }

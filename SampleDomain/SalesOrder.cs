@@ -46,6 +46,10 @@ namespace SampleDomain
                     {"SalesOrderId", new Reference<Guid>(() => SalesOrderId, (v) => SalesOrderId = v)},
                     {"DateSubmitted", new Reference<DateTime>(() => DateSubmitted, (v) => DateSubmitted = v)},
                     {"CustomerId", new Reference<Guid>(() => CustomerId, (v) => CustomerId = v)},
+                },
+                Parents = new RelationshipCollection()
+                {
+                    new DataRelationship<SalesOrder, Customer>("CustomerId")
                 }
             };
         }

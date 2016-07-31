@@ -28,9 +28,21 @@ namespace SampleDomain.Services
 
     }
 
-    public class DataDefinition : QuickDAL.DataDefinition {}
-    public class DataMap : Dictionary<String, QuickDAL.IReference> {}
-    public interface IReference : QuickDAL.IReference {}
+    public class DataDefinition : QuickDAL.DataDefinition { }
+    public class DataMap : Dictionary<String, QuickDAL.IReference> { }
+    public interface IReference : QuickDAL.IReference { }
+    public class RelationshipCollection : List<QuickDAL.DataRelationship> { }
+
+    public class DataRelationship<LEFT, OTHER> : QuickDAL.DataRelationship
+        where LEFT : Persistent<LEFT>, new()
+        where OTHER : Persistent<OTHER>, new()
+    {
+        public DataRelationship(String joinField)
+            : base(new LEFT(), new OTHER(), joinField) { }
+
+        public DataRelationship(String leftField, String rightField)
+            : base(new LEFT(), leftField, new OTHER(), rightField) { }
+    }
 
     public class Reference : QuickDAL.Reference, IReference
     {
