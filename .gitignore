@@ -12,3 +12,7 @@
 /SampleDomainTests/bin/Debug
 /SampleDomain/bin/Debug
 /SampleDomain/obj/Debug
+/SampleWebApp/obj/Debug
+/SampleAppServicesTests/obj/Debug
+/SampleAppServices/obj/Debug
+/packages
