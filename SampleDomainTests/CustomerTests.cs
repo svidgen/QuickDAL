@@ -31,10 +31,37 @@ namespace SampleDomainTests
         [TestMethod]
         public void Customer_LazyLoadsProducts()
         {
+            var c = CreateCustomerWithProduct("Customer_LazyLoadsProducts");
+
+            var test = Customer.Get(c.CustomerId);
+
+            Assert.AreEqual(1, test.Products.Count);
+            Assert.IsFalse(String.IsNullOrEmpty(c.Products[0].Name));
+            Assert.AreEqual(c.Products[0].Name, test.Products[0].Name);
+        }
+
+        [TestMethod]
+        public void Customer_DoesNotLazyLoadOtherCustomerProducts()
+        {
+            var c1 = CreateCustomerWithProduct("Customer_DoesNotLazyLoadOtherCustomerProducts1");
+            var c2 = CreateCustomerWithProduct("Customer_DoesNotLazyLoadOtherCustomerProducts2");
+
+            var test1 = Customer.Get(c1.CustomerId);
+            var test2 = Customer.Get(c2.CustomerId);
+
+            Assert.AreEqual(1, test1.Products.Count);
+            Assert.AreEqual(1, test2.Products.Count);
+            Assert.AreEqual(c1.Products[0].Name, test1.Products[0].Name);
+            Assert.AreEqual(c2.Products[0].Name, test2.Products[0].Name);
+            Assert.AreNotEqual(test1.Products[0].Name, test2.Products[0].Name);
+        }
+
+        public static Customer CreateCustomerWithProduct(String testName)
+        {
             var c = new Customer()
             {
                 FirstName = "Bob",
-                LastName = "Lazy Loads Products"
+                LastName = testName
             };
             c.Save();
 
@@ -46,7 +73,7 @@ namespace SampleDomainTests
 
             var p = new Product()
             {
-                Name = "Customer_LazyLoadsProducts"
+                Name = testName + " Product"
             };
             p.Save();
 
@@ -57,10 +84,9 @@ namespace SampleDomainTests
                 SalesOrder = o
             };
             l.Save();
-            
-            var test = Customer.Get(c.CustomerId);
-            Assert.AreEqual(1, test.Products.Count);
-            Assert.AreEqual(p.Name, test.Products[0].Name);
+
+            return c;
         }
+
     }
 }
