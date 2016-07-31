@@ -9,7 +9,6 @@ namespace SampleDomain.Services
 {
     public abstract class Persistent<T> : DataObject<T> where T : DataObject<T>, new()
     {
-
         private static QueryBuilder _QueryBuilder = null;
         public override QueryBuilder GetQueryBuilder()
         {
@@ -20,5 +19,29 @@ namespace SampleDomain.Services
             return _QueryBuilder;
         }
 
+        public abstract DataDefinition GetPersistenceDefinition();
+
+        public override QuickDAL.DataDefinition GetDefinition()
+        {
+            return GetPersistenceDefinition();
+        }
+
     }
+
+    public class DataDefinition : QuickDAL.DataDefinition {}
+    public class DataMap : Dictionary<String, QuickDAL.IReference> {}
+    public interface IReference : QuickDAL.IReference {}
+
+    public class Reference : QuickDAL.Reference, IReference
+    {
+        public Reference(Func<Object> Getter, Action<Object> Setter, Type type = null)
+            : base(Getter, Setter, type) {}
+    }
+
+    public class Reference<T> : QuickDAL.Reference<T>, IReference
+    {
+        public Reference(Func<T> Getter, Action<T> Setter)
+            : base(Getter, Setter) {}
+    }
+
 }

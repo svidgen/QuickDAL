@@ -29,6 +29,9 @@ namespace QuickDALTests.TestCaseClasses
                 if (value != null)
                 {
                     ParentId = value.ParentId;
+                } else
+                {
+                    ParentId = Guid.Empty;
                 }
             }
         }

@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using QuickDAL;
+using SampleDomain.Services;
 
 namespace SampleDomain
 {
-    public class Product : Services.Persistent<Product>
+    public class Product : Persistent<Product>
     {
         public Guid ProductId { get; set; }
         public String Name { get; set; }
         public Decimal UnitPrice { get; set; }
 
-        public override DataDefinition GetDefinition()
+        public override DataDefinition GetPersistenceDefinition()
         {
             return new DataDefinition()
             {
                 DataEntity = "Products",
                 PrimaryKey = "ProductId",
-                Maps = new Dictionary<string, IReference>()
+                Maps = new DataMap()
                 {
                     {"ProductId", new Reference<Guid>(() => ProductId, (v) => ProductId = v)},
                     {"Name", new Reference<String>(() => Name, (v) => Name = v)},

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using QuickDAL;
+using SampleDomain.Services;
 
 namespace SampleDomain
 {
-    public class LineItem : Services.Persistent<LineItem>
+    public class LineItem : Persistent<LineItem>
     {
         public Guid LineItemId { get; set; }
         private Guid SalesOrderId { get; set; }
@@ -59,13 +59,13 @@ namespace SampleDomain
             }
         }
 
-        public override DataDefinition GetDefinition()
+        public override DataDefinition GetPersistenceDefinition()
         {
             return new DataDefinition()
             {
                 DataEntity = "LineItems",
                 PrimaryKey = "LineItemId",
-                Maps = new Dictionary<string, IReference>()
+                Maps = new DataMap()
                 {
                     {"LineItemId", new Reference<Guid>(() => LineItemId, (v) => LineItemId = v)},
                     {"SalesOrderId", new Reference<Guid>(() => SalesOrderId, (v) => SalesOrderId = v)},
