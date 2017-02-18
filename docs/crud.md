@@ -42,3 +42,12 @@ For example:
 	};
 	line.Save();
 	line.LineItemId;	// now populated with a newly generated ID
+
+## `Detele()`
+
+Deletes records. If the PK is populated on the target, this will delete a single records. But, it also supported deleting multiple records when the PK is left empty.
+
+	var line = new LineItem() {
+		OrderId = new Guid("{622E2962-2E91-4105-A01B-B6C897E38420}")
+	};
+	line.Delete();	// deletes ALL lines under the order.
