@@ -9,68 +9,88 @@ Assume we have a {{Product}} entity that has been properly mapped. Writing queri
 
 ### Getting a single record with its PK
 
-	Guid id = GetProductIdFromRequest();
-	Product p = Product.Get(id);
+```c#
+Guid id = GetProductIdFromRequest();
+Product p = Product.Get(id);
+```
 
 ### Finding records using an exact matching
 
-	List<Product> products = Product.Get(new Product() {
+```c#
+List<Product> products = Product.Get(new Product() {
 	Name = "Product Name"
-	});
+});
+```
 
 
 ### Finding records using multiple search fields
 
-	List<Product> products = Product.Get(new Product() {
-		Name = "Product Name",
-		Category = 3
-	});
+```c#
+List<Product> products = Product.Get(new Product() {
+	Name = "Product Name",
+	Category = 3
+});
+```
 
 ### Find records using fuzzy/TSQL-LIKE matching
 
-	List<Product> products = Product.Get(new Product() {
-		Name = "%boring%"
-	}, true);
+```c#
+List<Product> products = Product.Get(new Product() {
+	Name = "%boring%"
+}, true);
+```
 
 ### Finding records using multiple all-inclusive (OR) terms
 
 E.g. retrieve all products named "Boring Product Name" or "Uncle Bob".
 
-	List<Product> products = Product.Get(new List<DataObject>() {
-		new Product() { Name = "Boring Product Name" },
-		new Product() { Name = "Uncle Bob"}
-	});
+```c#
+List<Product> products = Product.Get(new List<DataObject>() {
+	new Product() { Name = "Boring Product Name" },
+	new Product() { Name = "Uncle Bob"}
+});
+```
 
 ## The sophisticated
 Assume we have a long chain of related and properly mapped classes:
 
-	Content <-> Product <- LineItem -> Order <- Customer
+```c#
+Content <-> Product <- LineItem -> Order <- Customer
+```
 
 Finding data related to a known entity or "distant" search term is effortless. QuickDAL will use the shortest mapped path between the entities.
 
 ### Finding records immediately related to a specific record
 
-	Order o = Order.Get(new Guid("{47E9A983-4655-4C34-BB6E-E2A4C315D428}"))
-	List<LineItem> lines = LineItem.Get(o);
+```c#
+Order o = Order.Get(new Guid("{47E9A983-4655-4C34-BB6E-E2A4C315D428}"))
+List<LineItem> lines = LineItem.Get(o);
+```
 
 ### Finding records based on criteria from a related entity
 
-	Order searchOrder = new Order() { Date = DateTime.Today };
-	List<LineItem> linesOrderdToday = LineItem.Get(searchOrder);
+```c#
+Order searchOrder = new Order() { Date = DateTime.Today };
+List<LineItem> linesOrderdToday = LineItem.Get(searchOrder);
+```
 
 ### Finding "distant" records related to a specific record
 
 E.g., find all Content available to a logged in customer.
 
-	Customer c = Customer.Get(GetLoggedInCustomerId());    // or something
-	List<Content> availableContent = Content.Get(c);
+```c#
+Customer c = Customer.Get(GetLoggedInCustomerId());    // or something
+List<Content> availableContent = Content.Get(c);
+```
 
 ### Finding records based on "distant" search _criteria_.
 
 E.g., find all Content available to Customers in Wisconsin.
 
-	Customer criteria = new Customer() { State = "WI" };
-	List<Content> avialableContent = Content.Get(criteria);
+```c#
+Customer criteria = new Customer() { State = "WI" };
+List<Content> avialableContent = Content.Get(criteria);
+```
 
 Well and good, aye!? You just need to learn how to get your entities mapped to the schema now.
 
