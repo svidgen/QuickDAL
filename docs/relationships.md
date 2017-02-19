@@ -27,7 +27,7 @@ public override DataDefinition GetPersistenceDefinition()
 		},
 		Children = new RelationshipCollection()
 		{
-			new DataRelationship<SalesOrder, LineItem)("SalesOrderId")
+			new DataRelationship<SalesOrder, LineItem>("SalesOrderId")
 		},
 	};
 }
