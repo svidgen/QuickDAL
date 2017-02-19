@@ -6,39 +6,41 @@ Most basically, your classes will inherit from [DataObject](../master/QuickDAL/D
 
 ## For example
 
-	public class Order : DataObject<Order>
+```c#
+public class Order : DataObject<Order>
+{
+	public Guid OrderID { get; set; }
+	public String Address { get; set; }
+	/* etc. */
+
+	// where the object lives
+	public override QueryBuilder GetQueryBuilder()
 	{
-		public Guid OrderID { get; set; }
-		public String Address { get; set; }
-		/* etc. */
-
-		// where the object lives
-		public override QueryBuilder GetQueryBuilder()
-		{
-			return YOURNS.GetQueryBuilder();
-		}
-
-		// how the object relates to the schema
-		public override DataDefinition GetDefinition()
-		{
-			return new DataDefinition()
-			{
-				DataEntity = "order",
-				PrimaryKey = "orderID",
-				Maps = new Dictionary<String, IReference>()
-				{
-					/* {"db-field-name", new Refrence<Type>(
-						   // getter
-						   () => LocalField,
-						   // setter
-						   (v) => LocalField = v
-					)} */
-					{"Address", new Reference<String>(() => Address, v => Address = v)},
-					{"orderID", new Reference<Guid>(() => Id, v => Id = v)},
-				}
-			};
-		}
+		return YOURNS.GetQueryBuilder();
 	}
+
+	// how the object relates to the schema
+	public override DataDefinition GetDefinition()
+	{
+		return new DataDefinition()
+		{
+			DataEntity = "order",
+			PrimaryKey = "orderID",
+			Maps = new Dictionary<String, IReference>()
+			{
+				/* {"db-field-name", new Refrence<Type>(
+					   // getter
+					   () => LocalField,
+					   // setter
+					   (v) => LocalField = v
+				)} */
+				{"Address", new Reference<String>(() => Address, v => Address = v)},
+				{"orderID", new Reference<Guid>(() => Id, v => Id = v)},
+			}
+		};
+	}
+}
+```
 
 Once this is done, you can leverage the QuickDAL [CRUD Methods](crud.md) on your `Order` entity.
 
