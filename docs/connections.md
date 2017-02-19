@@ -13,7 +13,7 @@ Just grab your connection from whatever connection manager you're using and give
 
 ## Inject query execution functions
 
-The alternate {{QueryBuilder}} constructor takes four proxy functions as parameters.
+The alternative `QueryBuilder` constructor takes four proxy functions as parameters.
 * `createCommand` : Returns an `IDbCommand`.
 * `executeReader(IDbCommand)` : Executes an `IDbCommand` and returns an `IDataReader`.
 * `executeNonQuery(IDbCommand)` : Executes an `IDbCommand` and returns an `Int32` (usually rows changed)
