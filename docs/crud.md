@@ -1,9 +1,9 @@
 # CRUD
 
-When a class inherits from `DataObject` like so:
+When a class inherits from `Persistent` like so:
 
 ```c#
-public LineItem : DataObject<LineItem>
+public LineItem : Persistent<LineItem>
 {
 	public Guid LineItemId { get; set; }
 	/* etc. */
@@ -14,7 +14,7 @@ public LineItem : DataObject<LineItem>
 
 ## `static Get()`
 
-Given an instance of the entities PK, this returns a single record. Given a `DataObject` or `List<DataObject>` as criteria, it returns `List<T>`.
+Given an instance of the entities PK, this returns a single record. Given a `Persistent` or `List<Persistent>` as criteria, it returns `List<T>`.
 
 ```c#
 var lines = LineItem.Get(new LineItem() {
