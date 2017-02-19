@@ -2,11 +2,13 @@
 
 When a class inherits from `DataObject` like so:
 
-	public LineItem : DataObject<LineItem>
-	{
-		public Guid LineItemId { get; set; }
-		/* etc. */
-	}
+```c#
+public LineItem : DataObject<LineItem>
+{
+	public Guid LineItemId { get; set; }
+	/* etc. */
+}
+```
 
 ... it gets *blessed* with three CRUDdy methods.
 
@@ -14,9 +16,11 @@ When a class inherits from `DataObject` like so:
 
 Given an instance of the entities PK, this returns a single record. Given a `DataObject` or `List<DataObject>` as criteria, it returns `List<T>`.
 
-	var lines = LineItem.Get(new LineItem() {
-		OrderId = new Guid("{622E2962-2E91-4105-A01B-B6C897E38420}")
-	});
+```c#
+var lines = LineItem.Get(new LineItem() {
+	OrderId = new Guid("{622E2962-2E91-4105-A01B-B6C897E38420}")
+});
+```
 
 For example:
 
@@ -37,17 +41,21 @@ Saves the record. Performs an `UPDATE` if the PK is populated; otherwise and `IN
 
 For example:
 
-	var line = new LineItem() {
-		OrderId = new Guid("{622E2962-2E91-4105-A01B-B6C897E38420}")
-	};
-	line.Save();
-	line.LineItemId;	// now populated with a newly generated ID
+```c#
+var line = new LineItem() {
+	OrderId = new Guid("{622E2962-2E91-4105-A01B-B6C897E38420}")
+};
+line.Save();
+line.LineItemId;	// now populated with a newly generated ID
+```
 
 ## `Detele()`
 
 Deletes records. If the PK is populated on the target, this will delete a single records. But, it also supported deleting multiple records when the PK is left empty.
 
-	var line = new LineItem() {
-		OrderId = new Guid("{622E2962-2E91-4105-A01B-B6C897E38420}")
-	};
-	line.Delete();	// deletes ALL lines under the order.
+```c#
+var line = new LineItem() {
+	OrderId = new Guid("{622E2962-2E91-4105-A01B-B6C897E38420}")
+};
+line.Delete();	// deletes ALL lines under the order.
+```
