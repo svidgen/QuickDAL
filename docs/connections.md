@@ -8,8 +8,10 @@ There are two ways to configure and build a `QueryBuilder`.
 
 Just grab your connection from whatever connection manager you're using and give it to your `QueryBuilder`.
 
-	IDbConnection c = MyConnectionManager.GetConnection();
-	var qb = new QueryBuilder(c);
+```c#
+IDbConnection c = MyConnectionManager.GetConnection();
+var qb = new QueryBuilder(c);
+```
 
 ## Inject query execution functions
 
@@ -21,25 +23,27 @@ The alternative `QueryBuilder` constructor takes four proxy functions as paramet
 
 For example, if you're stuck using something like the Enterprise library (like me), you could create a working `QueryBuilder` like so:
 
-	public static QueryBuilder GetQueryBuilder() {
-	  Database db = DatabaseFactory.CreateDatabase("main");
+```c#
+public static QueryBuilder GetQueryBuilder() {
+  Database db = DatabaseFactory.CreateDatabase("main");
 
-	  Func<IDbCommand> createCommand = () =>
-		{ return db.GetSqlStringCommand("select 1"); };
+  Func<IDbCommand> createCommand = () =>
+	{ return db.GetSqlStringCommand("select 1"); };
 
-	  Func<IDbCommand, IDataReader> executeReader = (q) =>
-		{ return db.ExecuteReader((DbCommand)q); };
+  Func<IDbCommand, IDataReader> executeReader = (q) =>
+	{ return db.ExecuteReader((DbCommand)q); };
 
-	  Func<IDbCommand, Int32> executeNonQuery = (q) =>
-		{ return db.ExecuteNonQuery((DbCommand)q); };
+  Func<IDbCommand, Int32> executeNonQuery = (q) =>
+	{ return db.ExecuteNonQuery((DbCommand)q); };
 
-	  Func<IDbCommand, Object> executeScalar = (q) =>
-		{ return db.ExecuteScalar((DbCommand)q); };
+  Func<IDbCommand, Object> executeScalar = (q) =>
+	{ return db.ExecuteScalar((DbCommand)q); };
 
-	  return new QueryBuilder(
-		createCommand,
-		executeReader,
-		executeNonQuery,
-		executeScalar
-	  );
-	}
+  return new QueryBuilder(
+	createCommand,
+	executeReader,
+	executeNonQuery,
+	executeScalar
+  );
+}
+```
