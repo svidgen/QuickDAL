@@ -16,7 +16,7 @@ public class Order : DataObject<Order>
 	// where the object lives
 	public override QueryBuilder GetQueryBuilder()
 	{
-		return YOURNS.GetQueryBuilder();
+		return ConfigurationService.GetQueryBuilder();
 	}
 
 	// how the object relates to the schema
