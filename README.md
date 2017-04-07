@@ -2,10 +2,10 @@
 
 A very small library that provides a simple and efficient Data Access Layer between business entities and a T-SQL compatible database.
 
-Entities that inherit from QuickDAL's {{DataObject}} class and inform QuickDAL about how they relate to the database can be queried effortlessly.
+Entities that inherit from QuickDAL's `DataObject` class and inform QuickDAL about how they relate to the database can be queried effortlessly.
 
 ## The simple
-Assume we have a {{Product}} entity that has been properly mapped. Writing queries against that entity is simple and straightforward.
+Assume we have a `Product` entity that has been properly mapped. Writing queries against that entity is simple and straightforward.
 
 ### Getting a single record with its PK
 
