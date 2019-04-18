@@ -49,7 +49,7 @@ line.Save();
 line.LineItemId;	// now populated with a newly generated ID
 ```
 
-## `Detele()`
+## `Delete()`
 
 Deletes records. If the PK is populated on the target, this will delete a single records. But, it also supported deleting multiple records when the PK is left empty.
 
