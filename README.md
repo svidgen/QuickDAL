@@ -1,3 +1,19 @@
+# ☠️ ⚠️ ☠️ WARNING!!! ☠️ ⚠️ ☠️
+
+This project is **archived** and **dangerous**!
+
+QuickDAL was originally created to provide an abstraction over SQL on a project that proved difficult to migrate to other ORM's _at the time_. QuickDAL was an in-house solution developed to bridge the gap. It sufficiently fulfilled that role, but contains a critical "feature" that should never ever ever _ever_ be used in a production codebase **as-is**.
+
+Namely, this DAL allows you to query for model `A` using criteria from model `Z` without specifying the specific relationship/join path. QuickDAL will instead "search" for and use the most likely intended path from `A` to `Z` (usually the shortest-path). Maybe this is a cool feature for some geeky projects. For real-world applications, this is a terrible, **terrible** feature. **_DO NOT USE IT_.**
+
+Feel free to pick this up, play with it, and learn from it. But, do not use it as-is in production.
+
+## If I had to do it again
+
+I would definitely forgo the implicit join logic, saving me tons of mental energy and proably reducing the codebase by around [80%](https://en.wikipedia.org/wiki/Pareto_principle).
+
+If you're out there, creating your own DAL or ORM, be explicit! 😅
+
 # QuickDAL
 
 A very small library that provides a simple and efficient Data Access Layer between business entities and a T-SQL compatible database.
